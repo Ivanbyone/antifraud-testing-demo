@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: mq
+    hostname: rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      TZ: ${TZ}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+    volumes:
+      - mq_data:/var/lib/rabbitmq
+    networks:
+      - antifraud-network
+
+volumes:
+  mq_data:
+
+networks:
+  antifraud-network:
+    driver: bridge
