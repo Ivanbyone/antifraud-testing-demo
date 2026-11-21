@@ -16,24 +16,35 @@ services:
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
     volumes:
       - mq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: [ "CMD-SHELL", "rabbitmq-diagnostics -q check_port_connectivity" ]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
     networks:
       - antifraud-network
 
   postgres:
-        image: postgres:17-alpine
-        container_name: database
-        restart: unless-stopped
-        ports:
-            - "${PG_PORT}:5432"
-        environment:
-            POSTGRES_DB: ${PG_DB_NAME}
-            POSTGRES_USER: ${PG_ROOT_USER}
-            POSTGRES_PASSWORD: ${PG_ROOT_PASSWORD}
-            PGDATA: ${PG_DATA_DIR}
-        volumes:
-            - db_data:${PG_DATA_DIR}
-        networks:
-            - antifraud-network
+    image: postgres:17-alpine
+    container_name: database
+    restart: unless-stopped
+    ports:
+        - "${PG_PORT}:5432"
+    environment:
+        POSTGRES_DB: ${PG_DB_NAME}
+        POSTGRES_USER: ${PG_ROOT_USER}
+        POSTGRES_PASSWORD: ${PG_ROOT_PASSWORD}
+        PGDATA: ${PG_DATA_DIR}
+    volumes:
+        - db_data:${PG_DATA_DIR}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${PG_ROOT_USER} -d ${PG_DB_NAME}" ]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    networks:
+        - antifraud-network
 
 volumes:
   mq_data:
