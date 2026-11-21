@@ -4,7 +4,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.13-management
-    container_name: mq
+    container_name: broker
     hostname: rabbitmq
     restart: unless-stopped
     ports:
@@ -19,8 +19,25 @@ services:
     networks:
       - antifraud-network
 
+  postgres:
+        image: postgres:17-alpine
+        container_name: database
+        restart: unless-stopped
+        ports:
+            - "${PG_PORT}:5432"
+        environment:
+            POSTGRES_DB: ${PG_DB_NAME}
+            POSTGRES_USER: ${PG_ROOT_USER}
+            POSTGRES_PASSWORD: ${PG_ROOT_PASSWORD}
+            PGDATA: ${PG_DATA_DIR}
+        volumes:
+            - db_data:${PG_DATA_DIR}
+        networks:
+            - antifraud-network
+
 volumes:
   mq_data:
+  db_data:
 
 networks:
   antifraud-network:
