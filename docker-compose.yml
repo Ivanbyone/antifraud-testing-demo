@@ -8,8 +8,8 @@ services:
     hostname: rabbitmq
     restart: unless-stopped
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "${RABBITMQ_PORT}:5672"
+      - "15672:15672"   # RabbitMQ Management
     environment:
       TZ: ${TZ}
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
