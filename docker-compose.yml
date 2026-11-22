@@ -2,13 +2,38 @@ version: "3.9"
 
 services:
 
+  dictionary-service:
+    build:
+      context: ./dictionary-service
+      dockerfile: Dockerfile
+    restart: on-failure
+    ports:
+      - "${DICT_LOCAL_PORT}:${DICT_INTERNAL_PORT}"
+    environment:
+      DICT_INTERNAL_PORT: ${DICT_INTERNAL_PORT}
+      PG_PORT: ${PG_INTERNAL_PORT}
+      PG_DB_NAME: ${PG_DB_NAME}
+      PG_ROOT_USER: ${PG_ROOT_USER}
+      PG_ROOT_PASSWORD: ${PG_ROOT_PASSWORD}
+      RABBITMQ_PORT: ${RABBITMQ_INTERNAL_PORT}
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASS: ${RABBITMQ_PASS}
+    volumes:
+      - .m2:/root/.m2
+    depends_on:
+      - rabbitmq
+      - postgres
+    networks:
+      - antifraud-network
+
+
   rabbitmq:
     image: rabbitmq:3.13-management
     container_name: broker
     hostname: rabbitmq
     restart: unless-stopped
     ports:
-      - "${RABBITMQ_PORT}:5672"
+      - "${RABBITMQ_LOCAL_PORT}:${RABBITMQ_INTERNAL_PORT}"
       - "15672:15672"   # RabbitMQ Management
     environment:
       TZ: ${TZ}
@@ -30,7 +55,7 @@ services:
     container_name: database
     restart: unless-stopped
     ports:
-        - "${PG_PORT}:5432"
+        - "${PG_LOCAL_PORT}:${PG_INTERNAL_PORT}"
     environment:
         POSTGRES_DB: ${PG_DB_NAME}
         POSTGRES_USER: ${PG_ROOT_USER}
