@@ -1,0 +1,61 @@
+name: Docker build
+
+on:
+    workflow_call:
+        inputs:
+            count-services:
+                required: true
+                type: number
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v7
+
+            - name: Inject secrets
+              run: |
+                echo "Create environment secrets file..." 
+                echo "RABBITMQ_PORT=${{ secrets.CI_RABBITMQ_PORT }}" > .env
+                echo "RABBITMQ_USER=${{ secrets.CI_RABBITMQ_DEFAULT_USER }}" >> .env
+                echo "RABBITMQ_PASS=${{ secrets.CI_RABBITMQ_DEFAULT_PASS }}" >> .env
+                echo "TZ=${{ secrets.CI_TZ }}" >> .env
+                echo "PG_PORT=${{ secrets.CI_PG_PORT }}" >> .env
+                echo "PG_DB_NAME=${{ secrets.CI_PG_DB_NAME }}" >> .env
+                echo "PG_ROOT_USER=${{ secrets.CI_PG_ROOT_USER }}" >> .env
+                echo "PG_ROOT_PASSWORD=${{ secrets.CI_PG_ROOT_PASSWORD }}" >> .env
+
+            - name: Build and up containers
+              run: |
+                docker compose build
+                docker compose up -d
+
+            - name: Analyse healthcheck
+              run: |
+                RETRIES=5
+                RETRY_INTERVAL=10
+
+                for i in $(seq 1 $RETRIES); do
+                    if [ $(docker compose ps | grep -c "(healthy)") -eq ${{ inputs.count-services }} ]; then
+                        echo "Success healthchecks"
+                        exit 0
+                    fi
+
+                    echo "Retry: ($i/$RETRIES)"
+                    sleep $RETRY_INTERVAL
+                done
+
+                echo "Healthcheck FAILURE"
+                docker compose ps
+                exit 1
+            
+            - name: (Failure) Docker logs
+              if: failure()
+              run: docker compose logs
+
+            - name: Tear down and cleanup containers
+              if: always()
+              run: |
+                docker compose down
+                docker system prune -f

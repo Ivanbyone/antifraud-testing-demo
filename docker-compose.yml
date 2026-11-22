@@ -1,0 +1,55 @@
+version: "3.9"
+
+services:
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: broker
+    hostname: rabbitmq
+    restart: unless-stopped
+    ports:
+      - "${RABBITMQ_PORT}:5672"
+      - "15672:15672"   # RabbitMQ Management
+    environment:
+      TZ: ${TZ}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+    volumes:
+      - mq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: [ "CMD-SHELL", "rabbitmq-diagnostics -q check_port_connectivity" ]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - antifraud-network
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: database
+    restart: unless-stopped
+    ports:
+        - "${PG_PORT}:5432"
+    environment:
+        POSTGRES_DB: ${PG_DB_NAME}
+        POSTGRES_USER: ${PG_ROOT_USER}
+        POSTGRES_PASSWORD: ${PG_ROOT_PASSWORD}
+        PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+        - db_data:/var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${PG_ROOT_USER} -d ${PG_DB_NAME}" ]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    networks:
+        - antifraud-network
+
+volumes:
+  mq_data:
+  db_data:
+
+networks:
+  antifraud-network:
+    driver: bridge
