@@ -18,8 +18,8 @@ jobs:
               run: |
                 echo "Create environment secrets file..." 
                 echo "RABBITMQ_PORT=${{ secrets.CI_RABBITMQ_PORT }}" > .env
-                echo "RABBITMQ_DEFAULT_USER=${{ secrets.CI_RABBITMQ_DEFAULT_USER }}" >> .env
-                echo "RABBITMQ_DEFAULT_PASS=${{ secrets.CI_RABBITMQ_DEFAULT_PASS }}" >> .env
+                echo "RABBITMQ_USER=${{ secrets.CI_RABBITMQ_DEFAULT_USER }}" >> .env
+                echo "RABBITMQ_PASS=${{ secrets.CI_RABBITMQ_DEFAULT_PASS }}" >> .env
                 echo "TZ=${{ secrets.CI_TZ }}" >> .env
                 echo "PG_PORT=${{ secrets.CI_PG_PORT }}" >> .env
                 echo "PG_DATA_DIR=${{ secrets.CI_PG_DATA_DIR }}" >> .env
