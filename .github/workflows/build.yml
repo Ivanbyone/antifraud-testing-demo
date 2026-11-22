@@ -14,12 +14,6 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v7
 
-            - name: Set up Docker Buildx
-              uses: docker/setup-buildx-action@v4
-
-            - name: Set up Docker Compose
-              uses: docker/setup-compose-action@v2
-
             - name: Inject secrets
               run: |
                 echo "Create environment secrets file..." 
@@ -35,8 +29,8 @@ jobs:
 
             - name: Build and up containers
               run: |
-                docker-compose build
-                docker-compose up -d
+                docker compose build
+                docker compose up -d
 
             - name: Analyse healthcheck
               run: |
@@ -44,7 +38,7 @@ jobs:
                 RETRY_INTERVAL=10
 
                 for i in $(seq 1 $RETRIES); do
-                    if [ $(docker-compose ps | grep -c "(healthy)") -eq ${{ inputs.count-services }} ]; then
+                    if [ $(docker compose ps | grep -c "(healthy)") -eq ${{ inputs.count-services }} ]; then
                         echo "Success healthchecks"
                         exit 0
                     fi
@@ -54,15 +48,15 @@ jobs:
                 done
 
                 echo "Healthcheck FAILURE"
-                docker-compose ps
+                docker compose ps
                 exit 1
             
             - name: (Failure) Docker logs
               if: failure()
-              run: docker-compose logs
+              run: docker compose logs
 
             - name: Tear down and cleanup containers
               if: always()
               run: |
-                docker-compose down
+                docker compose down
                 docker system prune -f
