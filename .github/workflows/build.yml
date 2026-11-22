@@ -22,7 +22,6 @@ jobs:
                 echo "RABBITMQ_PASS=${{ secrets.CI_RABBITMQ_DEFAULT_PASS }}" >> .env
                 echo "TZ=${{ secrets.CI_TZ }}" >> .env
                 echo "PG_PORT=${{ secrets.CI_PG_PORT }}" >> .env
-                echo "PG_DATA_DIR=${{ secrets.CI_PG_DATA_DIR }}" >> .env
                 echo "PG_DB_NAME=${{ secrets.CI_PG_DB_NAME }}" >> .env
                 echo "PG_ROOT_USER=${{ secrets.CI_PG_ROOT_USER }}" >> .env
                 echo "PG_ROOT_PASSWORD=${{ secrets.CI_PG_ROOT_PASSWORD }}" >> .env
