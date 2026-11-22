@@ -1,5 +1,7 @@
 server:
   port: ${DICT_INTERNAL_PORT}
+  servlet:
+    context-path: /api
 
 spring:
   application:
@@ -13,6 +15,13 @@ spring:
 
   rabbitmq:
     host: broker
-    port: ${RABBITMQ_INTERNAL_PORT}
+    port: ${RABBITMQ_PORT}
     username: ${RABBITMQ_USER}
     password: ${RABBITMQ_PASS}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+        - health

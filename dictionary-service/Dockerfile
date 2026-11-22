@@ -12,6 +12,13 @@ RUN mvn -B clean install -DskipTests
 FROM eclipse-temurin:21-jre-alpine
 
 VOLUME /tmp
+
+RUN set -eux ; \
+    apk add \
+    --no-cache \
+    --no-logfile \
+    curl
+
 RUN adduser -S app
 USER app
 
