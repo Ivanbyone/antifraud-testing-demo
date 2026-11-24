@@ -9,7 +9,7 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://database:${PG_PORT}/${PG_DB_NAME}
+    url: jdbc:postgresql://database:${PG_PORT}/${PG_DB_NAME}?reWriteBatchedInserts=true
     username: ${PG_ROOT_USER}
     password: ${PG_ROOT_PASSWORD}
 
