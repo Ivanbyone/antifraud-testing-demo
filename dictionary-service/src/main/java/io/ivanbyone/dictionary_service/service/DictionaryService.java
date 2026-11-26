@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +29,9 @@ public class DictionaryService {
     private final BlackDictionaryRepository blackRepository;
     private final ObjectWriter jsonWriter;
     private final OutboxRepository outboxRepository;
+
+    @Value("${rabbit.queues.black-queue-to}")
+    private String blackOutbox;
     
     @Transactional
     public CreationOutput create(List<BlackDictionaryInput> input) {
@@ -78,7 +82,7 @@ public class DictionaryService {
         String msg = jsonWriter.writeValueAsString(entity);
         Outbox outbox = new Outbox();
         // TODO: занести в конфигурацию название очереди RabbitMQ
-        outbox.setQueueName("");
+        outbox.setQueueName(blackOutbox);
         outbox.setMessage(msg);
         outbox.setStatus(OutboxStatus.WAIT);
         return outbox;

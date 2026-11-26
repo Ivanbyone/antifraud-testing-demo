@@ -19,6 +19,11 @@ spring:
     username: ${RABBITMQ_USER}
     password: ${RABBITMQ_PASS}
 
+rabbit:
+  queues:
+    black-queue-to: ${BLACK_QUEUE_TO}
+
+
 management:
   endpoints:
     web:
